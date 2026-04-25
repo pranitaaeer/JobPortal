@@ -4,6 +4,12 @@ import AppLayout from './layouts/applayout'
 import PostJob from './pages/postJob';
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import MyJobs from './pages/myJobs';
+import CreatedJob from './components/CreatedJob';
+import ApplyJob from './components/applyJob';
+import Job from './pages/job';
+import JobListing from './pages/jobListing';
+import Onboarding from './pages/onboarding';
+import SavedJob from './pages/savedJob';
 function App() {
 
   const router=createBrowserRouter([{
@@ -20,7 +26,28 @@ function App() {
     {
       path:'/my-job',
       element:<MyJobs />
-    }
+    },
+    {
+      path:'/apply-job',
+      element:<ApplyJob />
+    },
+    {
+      path:'/job/1',
+      element:<Job />
+    },
+    {
+      path:'/search',
+      element:<JobListing />
+    },
+    {
+      path:'/onboarding',
+      element:<Onboarding />
+    },
+    {
+      path:'/saved-jobs',
+      element:<SavedJob />
+    },
+    
   ]
   }])
   return (

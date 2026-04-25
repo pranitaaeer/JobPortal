@@ -1,6 +1,8 @@
 import CreateApplication from '@/components/createApplication'
 import React, { useState } from 'react'
-import { Briefcase, FileText } from 'lucide-react'
+import { Briefcase, FileText, Plus } from 'lucide-react'
+import CreatedJOb from '../components/createdJob'
+import { Button } from '@/components/ui/button'
 
 const MyJobs = () => {
   const [user, setUser] = useState(false) // true = job seeker, false = employer
@@ -28,7 +30,11 @@ const MyJobs = () => {
         </div>
 
         {/* Applications Grid */}
-        <CreateApplication userType={user} />
+        {user ? (
+          <CreateApplication userType={user} />
+        ) : (
+          <CreatedJOb  userType={user}/>
+        )}
       </div>
     </div>
   )

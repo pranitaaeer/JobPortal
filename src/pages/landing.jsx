@@ -1,10 +1,10 @@
 
 
-import React from 'react'
+import React,{useState} from 'react'
 import { Button } from '../components/ui/button'
 import { Card, CardContent } from "@/components/ui/card"
+import {Input} from "../components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
 import {
   Carousel,
   CarouselContent,
@@ -24,8 +24,12 @@ import {
   Clock
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import ApplyJob from '@/components/applyJob'
 
 const Landing = () => {
+
+    const [isCandidate, setIsCandidate] = useState(true) // true = candidate, false = employer
+  
   const stats = [
     { icon: TrendingUp, label: "Active Jobs", value: "10,000+" },
     { icon: Users, label: "Companies", value: "5,000+" },
@@ -65,7 +69,7 @@ const Landing = () => {
                 Find Your Dream Job
               </span>
               <div className="flex items-center gap-4 sm:gap-8">
-                <span className="text-2xl sm:text-4xl lg:text-6xl text-gray-400">and get</span>
+                <span className="text-5xl sm:text-7xl lg:text-8xl font-extrabold text-white">and get</span>
                 <div className="relative group">
                   <img
                     src="/logo.png"
@@ -92,7 +96,7 @@ const Landing = () => {
                 </div>
                 <div className="flex-1 relative">
                   <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4" />
-                  <Input 
+                  <Input
                     placeholder="Location"
                     className="pl-10 bg-transparent border-gray-800 focus:border-gray-600 text-white"
                   />
@@ -106,16 +110,24 @@ const Landing = () => {
 
             {/* CTA Buttons */}
             <div className="flex gap-4 justify-center mb-16">
-              <Button size="lg" variant="secondary" className="gap-2 text-lg px-8 bg-gray-800 text-white hover:bg-gray-700">
+              <Link to={'/search'}>
+                <Button size="lg" variant="secondary" className="gap-2 text-lg px-8 bg-gray-800 text-white hover:bg-gray-700">
                 <Search className="w-5 h-5" />
                 Find Jobs
               </Button>
-              <Link to={'/post-job'}>
+              </Link>
+              {isCandidate ? (
+                <ApplyJob />
+              ):(
+                <>
+                  <Link to={'/post-job'}>
                 <Button size="lg" variant="default" className="gap-2 text-lg px-8 bg-amber-400 text-white hover:bg-amber-500">
                 <Briefcase className="w-5 h-5 text-black" />
                 Post a Job
               </Button>
               </Link>
+                </>
+              )}
             </div>
 
             {/* Stats */}
