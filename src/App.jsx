@@ -3,6 +3,7 @@ import Landing from './pages/landing'
 import AppLayout from './layouts/applayout'
 import PostJob from './pages/postJob';
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import MyJobs from './pages/myJobs';
 function App() {
 
   const router=createBrowserRouter([{
@@ -15,6 +16,10 @@ function App() {
     {
       path:'/post-job',
       element:<PostJob />
+    },
+    {
+      path:'/my-job',
+      element:<MyJobs />
     }
   ]
   }])
