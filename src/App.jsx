@@ -10,6 +10,8 @@ import Job from './pages/job';
 import JobListing from './pages/jobListing';
 import Onboarding from './pages/onboarding';
 import SavedJob from './pages/savedJob';
+import Companies from './pages/companies';
+import Resources from './pages/resources';
 function App() {
 
   const router=createBrowserRouter([{
@@ -47,7 +49,14 @@ function App() {
       path:'/saved-jobs',
       element:<SavedJob />
     },
-    
+    {
+      path:'/companies',
+      element:<Companies />
+    },
+      {
+      path:'/resources',
+      element:<Resources />
+    },
   ]
   }])
   return (

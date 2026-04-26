@@ -1,23 +1,6 @@
 
-// import React from 'react'
-// import { Button } from './ui/button'
 
-// const Header = () => {
-//   return (
-//     <nav className='background-color:black flex justify-between items-center px-3 py-2'>
-//         <img  src='../../public/logo.png' className='w-25 h-15' alt='logo'/>
-
-//         <div className='flex gap-2'>
-//             <Button variant='secondary'>login</Button>
-//             <Button  variant="default">job post</Button>
-
-//         </div>
-//     </nav>
-//   )
-// }
-
-// export default Header
-
+import { Show, SignInButton, SignUpButton, UserButton } from '@clerk/react'
 import React from 'react'
 import { Button } from './ui/button'
 import { Menu, X, Briefcase, LogIn } from 'lucide-react'
@@ -41,20 +24,33 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <div className='hidden md:flex items-center gap-4'>
-            <Button variant='ghost' className='text-gray-300 hover:text-white hover:bg-gray-800'>
+            <Link to={"/search"}> 
+              <Button variant='ghost' className='text-gray-300 hover:text-white hover:bg-gray-800'>
               Find Jobs
             </Button>
-            <Button variant='ghost' className='text-gray-300 hover:text-white hover:bg-gray-800'>
+            </Link>
+            <Link to={"/companies"}>
+              <Button variant='ghost' className='text-gray-300 hover:text-white hover:bg-gray-800'>
               Companies
             </Button>
-            <Button variant='ghost' className='text-gray-300 hover:text-white hover:bg-gray-800'>
+            </Link>
+            <Link to={"/resources"}>
+              <Button variant='ghost' className='text-gray-300 hover:text-white hover:bg-gray-800'>
               Resources
             </Button>
+            </Link>
             <div className='h-6 w-px bg-gray-800 mx-2'></div>
-            <Button variant='secondary' className='gap-2 bg-gray-800 text-white hover:bg-gray-700 border-gray-700'>
+            {/* <Button variant='secondary' className='gap-2 bg-gray-800 text-white hover:bg-gray-700 border-gray-700'>
               <LogIn className='w-4 h-4' />
               Login
-            </Button>
+            </Button> */}
+            <Show when="signed-out">
+              <SignInButton />
+              <SignUpButton />
+            </Show>
+            <Show when="signed-in">
+              <UserButton />
+        </Show>
             {isCandidate ? (
               <ApplyJob />
             ):(
@@ -92,17 +88,28 @@ const Header = () => {
                 Find Jobs
               </Button>
               </Link>
-              <Button variant='ghost' className='justify-start text-gray-300 hover:text-white hover:bg-gray-800'>
+              <Link to={"/companies"}>
+                <Button variant='ghost' className='justify-start text-gray-300 hover:text-white hover:bg-gray-800'>
                 Companies
               </Button>
-              <Button variant='ghost' className='justify-start text-gray-300 hover:text-white hover:bg-gray-800'>
+              </Link>
+              <Link to={"/resources"}>
+                <Button variant='ghost' className='justify-start text-gray-300 hover:text-white hover:bg-gray-800'>
                 Resources
               </Button>
+              </Link>
               <div className='border-t border-gray-800 pt-3'></div>
-              <Button variant='secondary' className='gap-2 bg-gray-800 text-white'>
+              {/* <Button variant='secondary' className='gap-2 bg-gray-800 text-white'>
                 <LogIn className='w-4 h-4' />
                 Login
-              </Button>
+              </Button> */}
+               <Show when="signed-out">
+          <SignInButton />
+          <SignUpButton />
+        </Show>
+        <Show when="signed-in">
+          <UserButton />
+        </Show>
               {isCandidate ? (
               <ApplyJob />
             ):(

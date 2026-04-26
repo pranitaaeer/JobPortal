@@ -1,8 +1,13 @@
-
-
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import faqs from "../data/faq.json"
 import React,{useState} from 'react'
 import { Button } from '../components/ui/button'
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {Input} from "../components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -21,7 +26,11 @@ import {
   Award,
   ArrowRight,
   Star,
-  Clock
+  Clock,
+  UserCheck,
+  Building2,
+  HelpCircle,
+  ChevronDown
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import ApplyJob from '@/components/applyJob'
@@ -121,8 +130,8 @@ const Landing = () => {
               ):(
                 <>
                   <Link to={'/post-job'}>
-                <Button size="lg" variant="default" className="gap-2 text-lg px-8 bg-amber-400 text-white hover:bg-amber-500">
-                <Briefcase className="w-5 h-5 text-black" />
+                <Button size="lg" variant="default" className="gap-2 text-lg px-8 bg-white text-black hover:bg-gray-200">
+                <Briefcase className="w-5 h-5" />
                 Post a Job
               </Button>
               </Link>
@@ -215,6 +224,150 @@ const Landing = () => {
               ))}
             </CarouselContent>
           </Carousel>
+        </div>
+      </section>
+
+      {/* Banner Image Section */}
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="relative rounded-2xl overflow-hidden group">
+            <img 
+              src="../../public/banner.jpeg" 
+              className="w-full h-auto object-cover transform group-hover:scale-105 transition-transform duration-500"
+              alt="Career banner"
+            />
+            <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/50 to-transparent"></div>
+            <div className="absolute bottom-0 left-0 right-0 p-8 text-center">
+              <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2">Ready to Start Your Journey?</h3>
+              <p className="text-gray-300">Explore thousands of opportunities waiting for you</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Role Cards Section */}
+      <section className="py-16 bg-gray-900/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+              Who Are You?
+            </h2>
+            <p className="text-gray-500 max-w-2xl mx-auto">
+              Choose your path and get started with personalized features
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* For Job Seekers Card */}
+            <Card className="bg-gray-900 border-gray-800 hover:border-blue-500 transition-all duration-300 group cursor-pointer">
+              <CardHeader className="text-center pb-4">
+                <div className="w-20 h-20 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                  <UserCheck className="w-10 h-10 text-blue-400" />
+                </div>
+                <CardTitle className="text-2xl font-bold text-white">For Job Seekers</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="text-gray-400 mb-6">
+                  Search and apply for jobs, track applications, and more.
+                </p>
+                <ul className="text-left space-y-2 mb-6">
+                  <li className="flex items-center gap-2 text-gray-400 text-sm">
+                    <Star className="w-4 h-4 text-blue-400 fill-blue-400" />
+                    Personalized job recommendations
+                  </li>
+                  <li className="flex items-center gap-2 text-gray-400 text-sm">
+                    <Star className="w-4 h-4 text-blue-400 fill-blue-400" />
+                    Easy application tracking
+                  </li>
+                  <li className="flex items-center gap-2 text-gray-400 text-sm">
+                    <Star className="w-4 h-4 text-blue-400 fill-blue-400" />
+                    Resume builder tools
+                  </li>
+                </ul>
+                <Button className="w-full bg-blue-600 text-white hover:bg-blue-700">
+                  Get Started
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* For Employers Card */}
+            <Card className="bg-gray-900 border-gray-800 hover:border-purple-500 transition-all duration-300 group cursor-pointer">
+              <CardHeader className="text-center pb-4">
+                <div className="w-20 h-20 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                  <Building2 className="w-10 h-10 text-purple-400" />
+                </div>
+                <CardTitle className="text-2xl font-bold text-white">For Employers</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="text-gray-400 mb-6">
+                  Post jobs, manage applications, and find the best candidates.
+                </p>
+                <ul className="text-left space-y-2 mb-6">
+                  <li className="flex items-center gap-2 text-gray-400 text-sm">
+                    <Star className="w-4 h-4 text-purple-400 fill-purple-400" />
+                    Reach qualified candidates
+                  </li>
+                  <li className="flex items-center gap-2 text-gray-400 text-sm">
+                    <Star className="w-4 h-4 text-purple-400 fill-purple-400" />
+                    Advanced candidate filtering
+                  </li>
+                  <li className="flex items-center gap-2 text-gray-400 text-sm">
+                    <Star className="w-4 h-4 text-purple-400 fill-purple-400" />
+                    Analytics and insights
+                  </li>
+                </ul>
+                <Button className="w-full bg-purple-600 text-white hover:bg-purple-700">
+                  Post a Job
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-16">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-800 rounded-full mb-4">
+              <HelpCircle className="w-8 h-8 text-gray-300" />
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-gray-500 max-w-2xl mx-auto">
+              Find answers to common questions about our platform
+            </p>
+          </div>
+
+          <Card className="bg-gray-900 border-gray-800">
+            <CardContent className="p-6">
+              <Accordion type="multiple" className="w-full">
+                {faqs.map((faq, index) => (
+                  <AccordionItem 
+                    key={index} 
+                    value={`item-${index + 1}`}
+                    className="border-b border-gray-800 last:border-0"
+                  >
+                    <AccordionTrigger className="text-white hover:text-gray-300 py-4 text-left font-medium">
+                      {faq.question}
+                    </AccordionTrigger>
+                    <AccordionContent className="text-gray-400 pb-4 leading-relaxed">
+                      {faq.answer}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </CardContent>
+          </Card>
+
+          {/* Still Have Questions */}
+          <div className="text-center mt-8">
+            <p className="text-gray-400 mb-4">Still have questions?</p>
+            <Button variant="outline" className="bg-gray-900 border-gray-800 text-white hover:bg-gray-800">
+              Contact Support
+            </Button>
+          </div>
         </div>
       </section>
     </main>
