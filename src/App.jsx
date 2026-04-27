@@ -12,6 +12,7 @@ import Onboarding from './pages/onboarding';
 import SavedJob from './pages/savedJob';
 import Companies from './pages/companies';
 import Resources from './pages/resources';
+import ProtectdRoutes from './components/protectdRoutes';
 function App() {
 
   const router=createBrowserRouter([{
@@ -23,31 +24,59 @@ function App() {
     },
     {
       path:'/post-job',
-      element:<PostJob />
+      element:(
+        <ProtectdRoutes>
+          <PostJob />
+        </ProtectdRoutes>
+      )
     },
     {
       path:'/my-job',
-      element:<MyJobs />
+      element:(
+        <ProtectdRoutes>
+          <MyJobs />
+        </ProtectdRoutes>
+      )
     },
     {
       path:'/apply-job',
-      element:<ApplyJob />
+      element:(
+        <ProtectdRoutes>
+          <ApplyJob />
+        </ProtectdRoutes>
+      )
     },
     {
       path:'/job/1',
-      element:<Job />
+      element:(
+        <ProtectdRoutes>
+          <Job />
+        </ProtectdRoutes>
+      )
     },
     {
       path:'/search',
-      element:<JobListing />
+      element:(
+        <ProtectdRoutes>
+          <JobListing />
+        </ProtectdRoutes>
+      )
     },
     {
       path:'/onboarding',
-      element:<Onboarding />
+      element:(
+        <ProtectdRoutes>
+          <Onboarding />
+        </ProtectdRoutes>
+      )
     },
     {
       path:'/saved-jobs',
-      element:<SavedJob />
+      element:(
+        <ProtectdRoutes>
+          <SavedJob />
+        </ProtectdRoutes>
+      )
     },
     {
       path:'/companies',

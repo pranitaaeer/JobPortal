@@ -8,7 +8,7 @@ import { ClerkProvider } from '@clerk/react'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ClerkProvider appearance={{
-     theme: [shadcn,dark],
+     theme: dark,
    }}>
       <App />
     </ClerkProvider>

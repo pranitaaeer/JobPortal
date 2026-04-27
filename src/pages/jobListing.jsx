@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button } from "../components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
@@ -24,15 +24,35 @@ import {
 } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
 import JobCard from '@/components/jobCard'
+import { getJobs } from '@/api/apijobs'
+import { useSession } from '@clerk/react'
+import Usefetch from '@/hooks/useFetch'
 
 const JobListing = () => {
+  const { session, isLoaded } = useSession()
   const [searchTerm, setSearchTerm] = useState('')
   const [location, setLocation] = useState('')
   const [salaryRange, setSalaryRange] = useState([50, 200])
   const [showFilters, setShowFilters] = useState(false)
+  
+  // ✅ HOOK KO TOP LEVEL PE CALL KARO (function ke andar nahi)
+  const { fn: fetchJobs, data: jobsData, loading } = Usefetch(getJobs, {})
+  console.log("job data",jobsData);
+  // ✅ Jab component mount ho aur session ready ho, tab fetch karo
+  useEffect(() => {
+    if (isLoaded && session) {
+      fetchJobs()
+    }
+  }, [isLoaded, session])
 
-  // Sample jobs data
-  const jobs = 5
+  if (!isLoaded || loading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white">{!isLoaded ? "Loading..." : "Fetching jobs..."}</div>
+      </div>
+    )
+  }
+  
   return (
     <div className="min-h-screen bg-black py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -143,7 +163,7 @@ const JobListing = () => {
         <div className="flex justify-between items-center mb-6">
           <div>
             <h2 className="text-xl font-semibold text-white">
-              Showing <span className="text-blue-400">{jobs}</span> jobs
+              Showing <span className="text-blue-400">{jobsData?.length || 0}</span> jobs
             </h2>
             <p className="text-gray-500 text-sm">Find your perfect match</p>
           </div>
@@ -163,107 +183,32 @@ const JobListing = () => {
 
         {/* Jobs Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-  <JobCard 
-    job={{
-      id: 1,
-      title: "Senior Frontend Developer",
-      company: "Tech Corp",
-      logo: "/companies/google.svg",
-      location: "New York, NY",
-      salary: "$120k - $150k",
-      type: "Full-time",
-      posted: "2 days ago",
-      tags: ["React", "TypeScript", "Tailwind"],
-      featured: true
-    }}
-    isMyJob={true}
-  />
-  
-  <JobCard 
-    job={{
-      id: 2,
-      title: "Backend Engineer",
-      company: "Startup Inc",
-      logo: "/companies/microsoft.svg",
-      location: "San Francisco, CA",
-      salary: "$130k - $160k",
-      type: "Full-time",
-      posted: "3 days ago",
-      tags: ["Node.js", "Python", "PostgreSQL"],
-      featured: false
-    }}
-    isMyJob={true}
-  />
-  
-  <JobCard 
-    job={{
-      id: 3,
-      title: "UI/UX Designer",
-      company: "Design Studio",
-      logo: "/companies/amazon.svg",
-      location: "Remote",
-      salary: "$80k - $100k",
-      type: "Contract",
-      posted: "1 week ago",
-      tags: ["Figma", "Adobe XD", "UI/UX"],
-      featured: true
-    }}
-    isMyJob={true}
-  />
-  
-  <JobCard 
-    job={{
-      id: 4,
-      title: "DevOps Engineer",
-      company: "Cloud Solutions",
-      logo: "/companies/netflix.svg",
-      location: "Austin, TX",
-      salary: "$140k - $170k",
-      type: "Full-time",
-      posted: "5 days ago",
-      tags: ["AWS", "Docker", "Kubernetes"],
-      featured: false
-    }}
-    isMyJob={true}
-  />
-  
-  <JobCard 
-    job={{
-      id: 5,
-      title: "Product Manager",
-      company: "Product Co",
-      logo: "/companies/apple.svg",
-      location: "Remote",
-      salary: "$110k - $140k",
-      type: "Full-time",
-      posted: "1 day ago",
-      tags: ["Agile", "Product Strategy", "Analytics"],
-      featured: true
-    }}
-    isMyJob={true}
-  />
-  
-  <JobCard 
-    job={{
-      id: 6,
-      title: "Mobile Developer",
-      company: "App Masters",
-      logo: "/companies/meta.svg",
-      location: "Los Angeles, CA",
-      salary: "$100k - $130k",
-      type: "Full-time",
-      posted: "4 days ago",
-      tags: ["React Native", "iOS", "Android"],
-      featured: false
-    }}
-    isMyJob={true}
-  />
-</div>
+          {jobsData && jobsData.length > 0 ? (
+            jobsData.map((job) => (
+              <JobCard 
+                key={job.id}
+                job={{
+                  title: job.title,
+                  company: job.company || job.comapny_id || "Company",
+                  location: job.location,
+                  salary: job.salary || "$80k - $120k",
+                  type: job.job_type || "Full-time",
+                  status: job.isOpen ? "Active" : "Closed",
+                  posted: job.created_at ? new Date(job.created_at).toLocaleDateString() : "Recently",
+                  tags: job.requirements ? (Array.isArray(job.requirements) ? job.requirements : job.requirements.split(',')) : ["New"],
+                  featured: false
+                }}
+                isMyJob={true}
+              />
+            ))
+          ) : (
+            <div className="col-span-2 text-center text-gray-400 py-12">
+              No jobs found. Check back later!
+            </div>
+          )}
         </div>
-
-        {/* Load More */}
-        
       </div>
+    </div>
   )
 }
 

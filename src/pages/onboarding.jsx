@@ -1,11 +1,27 @@
 import { Button } from '@/components/ui/button';
-import React from 'react';
+import React ,{useEffect} from 'react';
 import { Briefcase, Users, ArrowRight } from 'lucide-react';
-
+import { useUser } from '@clerk/react';
+import { useNavigate } from 'react-router-dom';
 const Onboarding = () => {
-    const handleRoleSelection = (role) => {
-        console.log(`  ${role} role selected successfully`);
+
+    const {user}=useUser()
+    const navigate=useNavigate()
+    const handleRoleSelection =async (role) => {
+        try {
+            await user.update({unsafeMetadata:{role}})
+            navigate(role==="recruiter" ? "/post-job": "/my-job")
+        } catch (error) {
+            
+        }
     }
+    useEffect(() => {
+     
+        if(user?.unsafeMetadata?.role){
+            navigate(user?.unsafeMetadata?.role==="recruiter" ? "/post-job": "/my-job")
+        }
+    }, [user])
+    
     
     return (
         <div className="min-h-screen bg-black flex items-center justify-center px-4">

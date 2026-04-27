@@ -9,7 +9,11 @@ const supabaseClient = async (supabaseAccessToken) => {
   });
   // set Supabase JWT on the client object,
   // so it is sent up with all Supabase requests
+
+  console.log(supabaseAccessToken,"token");
   return supabase;
 };
 
 export default supabaseClient
+
+

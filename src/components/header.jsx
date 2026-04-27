@@ -1,16 +1,40 @@
 
 
-import { Show, SignInButton, SignUpButton, UserButton } from '@clerk/react'
-import React from 'react'
+import { Show, SignIn, SignInButton, SignUpButton, UserButton, useUser } from '@clerk/react'
+import React,{useEffect} from 'react'
 import { Button } from './ui/button'
-import { Menu, X, Briefcase, LogIn } from 'lucide-react'
+import { Menu, X, Briefcase, LogIn, BriefcaseBusiness, Heart } from 'lucide-react'
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { href, Link, useSearchParams } from 'react-router-dom'
 import ApplyJob from './applyJob'
+ import { dark } from '@clerk/ui/themes'
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isCandidate, setIsCandidate] = useState(true) // true = candidate, false = employer
+  const [showsignin,setShowSigin]=useState(false)
+  const [search ,setSearch]=useSearchParams()
+
+
+  const {user}=useUser()
+  console.log("user",user);
+  useEffect(() => {
+  
+    if(search.get("sign-in")) setShowSigin(true)
+  
+    
+  }, [search])
+  
+  useEffect(() => {
+   setIsCandidate(user?.unsafeMetadata?.role==="candidate" ? true : false)
+  }, [])
+  
+ const  handleOverlayClick=(e)=>{
+  if(e.target===e.currentTarget){
+    setShowSigin(false)
+    setSearch({})
+  }
+ }
   return (
     <nav className='bg-black border-b border-gray-800 sticky top-0 z-50'>
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
@@ -40,17 +64,33 @@ const Header = () => {
             </Button>
             </Link>
             <div className='h-6 w-px bg-gray-800 mx-2'></div>
-            {/* <Button variant='secondary' className='gap-2 bg-gray-800 text-white hover:bg-gray-700 border-gray-700'>
-              <LogIn className='w-4 h-4' />
-              Login
-            </Button> */}
-            <Show when="signed-out">
-              <SignInButton />
-              <SignUpButton />
+            <div className='flex gap-8'>
+                 <Show when="signed-out">
+               <Button variant='secondary' onClick={()=>setShowSigin(true)} className='gap-2 bg-gray-800 text-white' >
+                <LogIn className='w-4 h-4' />
+                Login
+              </Button>
+              </Show>
+              <Show when="signed-in">
+                <UserButton >
+                 <UserButton.MenuItems>
+                  <UserButton.Link
+                   label='my jobs'
+                   labelIcon=<BriefcaseBusiness size={15} />
+                   href={"/my-job"}
+                   />
+
+                  <UserButton.Link
+                   label='saved jobs'
+                   labelIcon=<Heart size={15} />
+                   href={"/saved-jobs"}
+                   />
+                    
+                  
+                 </UserButton.MenuItems>
+                </UserButton>
             </Show>
-            <Show when="signed-in">
-              <UserButton />
-        </Show>
+            </div>
             {isCandidate ? (
               <ApplyJob />
             ):(
@@ -65,6 +105,9 @@ const Header = () => {
 
             )}
           </div>
+
+       
+
 
           {/* Mobile menu button */}
           <div className='md:hidden'>
@@ -99,17 +142,20 @@ const Header = () => {
               </Button>
               </Link>
               <div className='border-t border-gray-800 pt-3'></div>
-              {/* <Button variant='secondary' className='gap-2 bg-gray-800 text-white'>
+              
+              <div className='flex gap-8'>
+                 <Show when="signed-out">
+               <Button variant='secondary' className='gap-2 bg-gray-800 text-white'>
                 <LogIn className='w-4 h-4' />
                 Login
-              </Button> */}
-               <Show when="signed-out">
-          <SignInButton />
-          <SignUpButton />
-        </Show>
-        <Show when="signed-in">
-          <UserButton />
-        </Show>
+              </Button>
+                {/* <SignInButton />
+                <SignUpButton /> */}
+              </Show>
+              <Show when="signed-in">
+                <UserButton />
+            </Show>
+              </div>
               {isCandidate ? (
               <ApplyJob />
             ):(
@@ -127,7 +173,16 @@ const Header = () => {
           </div>
         )}
       </div>
+       {showsignin && (
+          <div className='fixed flex items-center justify-center inset-0 backdrop-blur-sm' onClick={handleOverlayClick}>
+            <SignIn forceRedirectUrl={"/onboarding"} fallbackRedirectUrl={"/onboarding"} appearance={{
+              theme:dark
+            }}/>
+          </div>
+        )}
     </nav>
+
+    
   )
 }
 
