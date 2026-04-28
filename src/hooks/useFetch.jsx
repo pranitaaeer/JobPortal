@@ -1,10 +1,10 @@
 import { useSession } from '@clerk/react'
-import React, { useState } from 'react'
+import { useState } from 'react'
 
 const Usefetch = (cb,options={}) => {
     const [data,setData]=useState(undefined)
     const [loading,setLoading]=useState(null)
-    const [errot,setError]=useState(null)
+    const [error,setError]=useState(null)
 
     const {session}=useSession()
 

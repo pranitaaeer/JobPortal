@@ -1,9 +1,23 @@
 import supabaseClient from "@/utils/supabase";
 
-export async function getJobs(token) {
+export async function getJobs(token,{location,company_id,searchTerm}) {
     const supabase=await supabaseClient(token)
     
     let query=supabase.from("jobs").select("*")
+
+    if(location){
+        query=query.eq("location",location)
+    }
+
+    
+    if(company_id){
+        query=query.eq("company_id",company_id)
+    }
+
+    
+    if(searchTerm){
+        query=query.ilike("title",`%${searchTerm}%`)
+    }
     const{data,error}=await query
 
     if(error){
@@ -12,5 +26,6 @@ export async function getJobs(token) {
     }
    return data
 
-}    
+}  
+  
 

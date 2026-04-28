@@ -1,107 +1,48 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Building2, MapPin, Briefcase, Users, Search, Filter, Globe, Mail, Calendar } from 'lucide-react'
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import Usefetch from '@/hooks/useFetch'
+import { getComapnies } from '@/api/apicompany'
+import { useSession } from '@clerk/react'
 
 const Companies = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedIndustry, setSelectedIndustry] = useState('all')
+  const {session, isLoaded} = useSession()
+  const {fn: fetchComapnies, data: companyData, loading} = Usefetch(getComapnies, {})
+ 
+  useEffect(() => {
+    if(isLoaded && session) fetchComapnies()
+  }, [isLoaded, session])
+  
+  console.log("company data", companyData);
 
-  // Sample companies data
-  const companies = [
-    {
-      id: 1,
-      name: "Tech Corp",
-      logo: "/companies/google.svg",
-      industry: "Technology",
-      location: "New York, NY",
-      employees: "1000-5000",
-      jobs: 24,
-      founded: "2010",
-      website: "techcorp.com",
-      email: "careers@techcorp.com",
-      description: "Leading technology company specializing in AI and cloud solutions",
-      featured: true
-    },
-    {
-      id: 2,
-      name: "Startup Inc",
-      logo: "/companies/microsoft.svg",
-      industry: "Technology",
-      location: "San Francisco, CA",
-      employees: "50-200",
-      jobs: 12,
-      founded: "2018",
-      website: "startupinc.com",
-      email: "hr@startupinc.com",
-      description: "Fast-growing startup revolutionizing the fintech space",
-      featured: false
-    },
-    {
-      id: 3,
-      name: "Design Studio",
-      logo: "/companies/amazon.svg",
-      industry: "Design",
-      location: "Remote",
-      employees: "20-50",
-      jobs: 8,
-      founded: "2015",
-      website: "designstudio.com",
-      email: "hello@designstudio.com",
-      description: "Creative agency specializing in UI/UX and branding",
-      featured: true
-    },
-    {
-      id: 4,
-      name: "Cloud Solutions",
-      logo: "/companies/netflix.svg",
-      industry: "Cloud Computing",
-      location: "Austin, TX",
-      employees: "500-1000",
-      jobs: 18,
-      founded: "2012",
-      website: "cloudsolutions.com",
-      email: "careers@cloudsolutions.com",
-      description: "Enterprise cloud migration and management services",
-      featured: false
-    },
-    {
-      id: 5,
-      name: "Product Co",
-      logo: "/companies/apple.svg",
-      industry: "Product",
-      location: "Remote",
-      employees: "100-500",
-      jobs: 15,
-      founded: "2016",
-      website: "productco.com",
-      email: "jobs@productco.com",
-      description: "Building innovative products for modern businesses",
-      featured: true
-    },
-    {
-      id: 6,
-      name: "App Masters",
-      logo: "/companies/meta.svg",
-      industry: "Mobile",
-      location: "Los Angeles, CA",
-      employees: "200-500",
-      jobs: 10,
-      founded: "2014",
-      website: "appmasters.com",
-      email: "careers@appmasters.com",
-      description: "Top mobile app development company",
-      featured: false
-    }
-  ]
+  if(!isLoaded || loading) {
+    return(
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white">{!isLoaded ? "Loading..." : "Fetching companies..."}</div>
+      </div>
+    )
+  }
 
-  const industries = ['all', 'Technology', 'Design', 'Cloud Computing', 'Product', 'Mobile']
+  // Add safety check for companyData
+  if (!companyData || !Array.isArray(companyData)) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white">No companies data available</div>
+      </div>
+    )
+  }
 
-  const filteredCompanies = companies.filter(company => {
-    const matchesSearch = company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          company.description.toLowerCase().includes(searchTerm.toLowerCase())
+  // Get unique industries from companyData
+  const industries = ['all', ...new Set(companyData.map(company => company.industry).filter(Boolean))]
+
+  const filteredCompanies = companyData.filter(company => {
+    const matchesSearch = company.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          company.description?.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesIndustry = selectedIndustry === 'all' || company.industry === selectedIndustry
     return matchesSearch && matchesIndustry
   })
@@ -127,7 +68,7 @@ const Companies = () => {
           <div className="flex justify-between items-center flex-wrap gap-4">
             <div>
               <p className="text-gray-400 text-sm">Total Companies</p>
-              <p className="text-2xl font-bold text-white">{companies.length}+ Companies</p>
+              <p className="text-2xl font-bold text-white">{filteredCompanies.length}+ Companies</p>
             </div>
             <div className="flex items-center gap-2">
               <Users className="w-5 h-5 text-gray-400" />
@@ -174,8 +115,12 @@ const Companies = () => {
                 <CardContent className="p-6">
                   {/* Company Header */}
                   <div className="flex items-start gap-4 mb-4">
-                    <div className="w-14 h-14 bg-gray-800 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                      <Building2 className="w-7 h-7 text-gray-400" />
+                    <div className="w-14 h-14 bg-gray-800 rounded-full flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                      {company.logo_url ? (
+                        <img src={company.logo_url} alt='company-logo' className="w-11 text-gray-400" />
+                      ) : (
+                        <Building2 className="w-6 h-6 text-gray-400" />
+                      )}
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -190,40 +135,40 @@ const Companies = () => {
                       </div>
                       <div className="flex items-center gap-1 text-gray-400 text-sm mt-1">
                         <MapPin size={14} />
-                        {company.location}
+                        {company.location || 'Location not specified'}
                       </div>
                     </div>
                   </div>
 
                   {/* Description */}
                   <p className="text-gray-400 text-sm mb-4 line-clamp-2">
-                    {company.description}
+                    {company.description || 'No description available'}
                   </p>
 
                   {/* Company Stats */}
                   <div className="grid grid-cols-2 gap-3 mb-4">
                     <div className="flex items-center gap-2 text-gray-400 text-sm">
                       <Briefcase size={14} />
-                      <span>{company.jobs} jobs</span>
+                      <span>{company.jobs || 0} jobs</span>
                     </div>
                     <div className="flex items-center gap-2 text-gray-400 text-sm">
                       <Users size={14} />
-                      <span>{company.employees}</span>
+                      <span>{company.employees || 'N/A'}</span>
                     </div>
                     <div className="flex items-center gap-2 text-gray-400 text-sm">
                       <Calendar size={14} />
-                      <span>Est. {company.founded}</span>
+                      <span>Est. {company.founded || 'N/A'}</span>
                     </div>
                     <div className="flex items-center gap-2 text-gray-400 text-sm">
                       <Globe size={14} />
-                      <span className="truncate">{company.website}</span>
+                      <span className="truncate">{company.website || 'N/A'}</span>
                     </div>
                   </div>
 
                   {/* Industry Badge */}
                   <div className="flex items-center justify-between pt-3 border-t border-gray-800">
                     <Badge variant="secondary" className="bg-gray-800 text-gray-300">
-                      {company.industry}
+                      {company.industry || 'Uncategorized'}
                     </Badge>
                     <Button variant="outline" size="sm" className="bg-gray-800 text-white border-gray-700 hover:bg-gray-700">
                       View Jobs
