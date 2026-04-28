@@ -89,7 +89,19 @@ const JobCard = ({ job = {}, isMyJob = false }) => {
             <CardTitle className="text-xl text-white font-semibold hover:text-blue-400 transition-colors">
               <Link to={`/job/${job.id || '#'}`}>{job.title || 'Untitled Job'}</Link>
             </CardTitle>
-            <p className="text-gray-400 text-sm mt-1">{job.company || 'Unknown Company'}</p>
+            
+            {/* Logo and Company Name in same line */}
+            <div className="flex items-center gap-2 mt-2">
+              {job.logo && (
+                <img 
+                  src={job.logo} 
+                  alt={job.company || 'Company logo'} 
+                  className="h-10 w-10 object-contain bg-gray-800 rounded-full text-center"
+                  onError={(e) => e.target.style.display = 'none'}
+                />
+              )}
+              <p className="text-gray-400 text-sm">{job.company || 'Unknown Company'}</p>
+            </div>
           </div>
           
           {/* Action Buttons */}
@@ -118,14 +130,7 @@ const JobCard = ({ job = {}, isMyJob = false }) => {
       <CardContent className="space-y-3">
         {/* Company Logo and Location */}
         <div className="flex items-center gap-3">
-          {job.logo && (
-            <img 
-              src={job.logo} 
-              alt={job.company || 'Company logo'} 
-              className="h-8 w-8 object-contain bg-gray-800 rounded-lg p-1"
-              onError={(e) => e.target.style.display = 'none'}
-            />
-          )}
+          
           <div className="flex items-center gap-1 text-gray-400 text-sm">
             <MapPinIcon size={14} />
             <span>{job.location || 'Location not specified'}</span>
@@ -157,8 +162,8 @@ const JobCard = ({ job = {}, isMyJob = false }) => {
               <Users size={14} />
               <span>{job.applicants || 0} applicants</span>
             </div>
-            <Badge className={`${getStatusColor(job.status)} text-white text-xs px-2 py-0.5`}>
-              {job.status || 'Active'}
+            <Badge className={`${getStatusColor(job.isOpen? "Active" :"Closed")} text-white text-xs px-2 py-0.5`}>
+              {job.isOpen ?'Active' :"close"}
             </Badge>
           </div>
         )}

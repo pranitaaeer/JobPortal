@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Field,
   FieldDescription,
@@ -18,25 +18,129 @@ import {
   Calendar,
   Clock,
   Plus,
-  X
+  X,
+  Loader2
 } from 'lucide-react'
-import { useState } from 'react'
 import AddCompanyDrawer from '@/components/addCompanyDrawer'
 import { AddSkillDialog } from '@/components/AddSkillDrawer'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { useSession, useUser } from '@clerk/react'
+import Usefetch from '@/hooks/useFetch'
+import { useNavigate } from 'react-router-dom'
+import { postJobs } from '@/api/apijobs'
 
 const PostJob = () => {
+  const navigate = useNavigate()
+  const { user } = useUser()
+  const { session, isLoaded } = useSession()
+  
   const [skills, setSkills] = useState([])
   const [currentSkill, setCurrentSkill] = useState('')
+  const [experience, setExperience] = useState("1-3")
+  
+  // Form state
+  const [formData, setFormData] = useState({
+    name: '',           // company name
+    logo_url: '',       // company logo
+    email: '',          // contact email
+    website: '',        // company website
+    title: '',          // job title
+    description: '',    // job description
+    location: '',       // location
+    requirements: '',   // skills
+    job_type: 'full-time',
+    experience_level: '1-3',
+    salary_min: '',
+    salary_max: ''
+  })
+
+  // Use the Usefetch hook
+  const { fn: postJobsFn, data, loading, error } = Usefetch(postJobs, formData)
 
   const addSkill = () => {
     if (currentSkill.trim() && !skills.includes(currentSkill.trim())) {
-      setSkills([...skills, currentSkill.trim()])
+      const newSkills = [...skills, currentSkill.trim()]
+      setSkills(newSkills)
+      setFormData({ ...formData, requirements: newSkills })
       setCurrentSkill('')
     }
   }
 
   const removeSkill = (skillToRemove) => {
-    setSkills(skills.filter(skill => skill !== skillToRemove))
+    const newSkills = skills.filter(skill => skill !== skillToRemove)
+    setSkills(newSkills)
+    setFormData({ ...formData, requirements: newSkills })
+  }
+
+  const experienceRanges = [
+    { value: '0-1', label: '0-1 years' },
+    { value: '1-3', label: '1-3 years' },
+    { value: '3-5', label: '3-5 years' },
+    { value: '5+', label: '5+ years' }
+  ]
+
+  const handleInputChange = (e) => {
+    const { id, value } = e.target
+    const fieldMap = {
+      'job-title': 'title',
+      'company-name': 'name',
+      'location': 'location',
+      'salary-min': 'salary_min',
+      "requirements":"requirements",
+      'salary-max': 'salary_max',
+      'job-description': 'description',
+      'contact-email': 'email',
+      'website': 'website'
+    }
+    
+    const field = fieldMap[id] || id
+    setFormData({ ...formData, [field]: value })
+  }
+
+  const handleJobTypeChange = (e) => {
+    setFormData({ ...formData, job_type: e.target.value })
+  }
+
+  const handleExperienceChange = (value) => {
+    setExperience(value)
+    setFormData({ ...formData, experience_level: value })
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    
+    // Validation
+    if (!formData.title || !formData.name || !formData.description || !formData.email || !formData.requirements) {
+      alert("Please fill all required fields")
+      return
+    }
+    
+    const userId = user?.id
+    await postJobsFn(userId)
+  }
+
+  // Handle success
+  useEffect(() => {
+    if (data && data.success) {
+      alert("Job posted successfully!")
+      navigate("/my-job")
+    }
+  }, [data, navigate])
+
+  // Handle error
+  useEffect(() => {
+    if (error) {
+      alert("Error posting job: " + (error.message || "Something went wrong"))
+    }
+  }, [error])
+
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </div>
+    )
   }
 
   return (
@@ -65,7 +169,7 @@ const PostJob = () => {
           </CardHeader>
           
           <CardContent className="pt-6">
-            <form className="space-y-8">
+            <form onSubmit={handleSubmit} className="space-y-8">
               {/* Basic Information Section */}
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold text-white flex items-center gap-2">
@@ -82,8 +186,12 @@ const PostJob = () => {
                     <Input
                       id="job-title"
                       type="text"
+                      value={formData.title}
+                      onChange={handleInputChange}
                       placeholder="e.g., Senior Frontend Developer"
                       className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-gray-600"
+                      disabled={loading}
+                      required
                     />
                     <FieldDescription className="text-gray-500 text-sm">
                       Choose a clear and descriptive title
@@ -99,8 +207,12 @@ const PostJob = () => {
                       <Input
                         id="company-name"
                         type="text"
+                        value={formData.name}
+                        onChange={handleInputChange}
                         placeholder="e.g., Tech Corp Inc."
                         className="flex-1 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-gray-600"
+                        disabled={loading}
+                        required
                       />
                       <AddCompanyDrawer />
                     </div>
@@ -120,8 +232,11 @@ const PostJob = () => {
                     <Input
                       id="location"
                       type="text"
+                      value={formData.location}
+                      onChange={handleInputChange}
                       placeholder="e.g., New York, NY (or Remote)"
                       className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-gray-600"
+                      disabled={loading}
                     />
                   </Field>
 
@@ -132,7 +247,10 @@ const PostJob = () => {
                     </FieldLabel>
                     <select
                       id="job-type"
+                      value={formData.job_type}
+                      onChange={handleJobTypeChange}
                       className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-gray-600"
+                      disabled={loading}
                     >
                       <option value="full-time">Full Time</option>
                       <option value="part-time">Part Time</option>
@@ -159,8 +277,11 @@ const PostJob = () => {
                     <Input
                       id="salary-min"
                       type="number"
+                      value={formData.salary_min}
+                      onChange={handleInputChange}
                       placeholder="$50,000"
                       className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-gray-600"
+                      disabled={loading}
                     />
                   </Field>
 
@@ -171,8 +292,11 @@ const PostJob = () => {
                     <Input
                       id="salary-max"
                       type="number"
+                      value={formData.salary_max}
+                      onChange={handleInputChange}
                       placeholder="$80,000"
                       className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-gray-600"
+                      disabled={loading}
                     />
                   </Field>
                 </div>
@@ -187,8 +311,12 @@ const PostJob = () => {
                   </FieldLabel>
                   <Textarea
                     id="job-description"
+                    value={formData.description}
+                    onChange={handleInputChange}
                     placeholder="Describe the role, responsibilities, and what makes this opportunity exciting..."
                     className="min-h-50 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-gray-600"
+                    disabled={loading}
+                    required
                   />
                   <FieldDescription className="text-gray-500">
                     Include key responsibilities, requirements, and benefits
@@ -205,11 +333,13 @@ const PostJob = () => {
                 
                 <div className="flex gap-3">
                   <Input
-                    value={currentSkill}
-                    onChange={(e) => setCurrentSkill(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && addSkill()}
+                    id="requirements"
+                    value={formData.requirements}
+                    onChange={handleInputChange}
                     placeholder="e.g., React, Python, Project Management"
                     className="flex-1 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-gray-600"
+                    disabled={loading}
+                    required
                   />
                   <AddSkillDialog />
                 </div>
@@ -226,6 +356,7 @@ const PostJob = () => {
                           type="button"
                           onClick={() => removeSkill(skill)}
                           className="hover:text-white"
+                          disabled={loading}
                         >
                           <X className="w-3 h-3" />
                         </button>
@@ -250,8 +381,12 @@ const PostJob = () => {
                     <Input
                       id="contact-email"
                       type="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
                       placeholder="hr@company.com"
                       className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-gray-600"
+                      disabled={loading}
+                      required
                     />
                   </Field>
 
@@ -262,41 +397,63 @@ const PostJob = () => {
                     <Input
                       id="website"
                       type="url"
+                      value={formData.website}
+                      onChange={handleInputChange}
                       placeholder="https://company.com"
                       className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-gray-600"
+                      disabled={loading}
                     />
                   </Field>
                 </div>
               </div>
 
-              {/* Deadline */}
-              <div className="space-y-4 pt-4">
-                <Field className="space-y-2">
-                  <FieldLabel htmlFor="deadline" className="text-gray-300 font-medium flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
-                    Application Deadline
-                  </FieldLabel>
-                  <Input
-                    id="deadline"
-                    type="date"
-                    className="bg-gray-800 border-gray-700 text-white focus:border-gray-600"
-                  />
-                </Field>
+              {/* Experience */}
+              <div className="space-y-2">
+                <Label htmlFor="experience" className="text-gray-300">
+                  Experience Required
+                </Label>
+                <Select 
+                  value={experience}
+                  onValueChange={handleExperienceChange}
+                  disabled={loading}
+                >
+                  <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                    <SelectValue placeholder="Select experience range" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                    {experienceRanges.map(range => (
+                      <SelectItem key={range.value} value={range.value} className="hover:bg-gray-700">
+                        {range.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Action Buttons */}
               <div className="flex gap-4 pt-8 border-t border-gray-800">
                 <Button 
                   type="submit" 
+                  disabled={loading}
                   className="flex-1 bg-white text-black hover:bg-gray-200 font-semibold py-6 text-lg"
                 >
-                  <Briefcase className="w-5 h-5 mr-2" />
-                  Post Job Listing
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      Posting...
+                    </>
+                  ) : (
+                    <>
+                      <Briefcase className="w-5 h-5 mr-2" />
+                      Post Job Listing
+                    </>
+                  )}
                 </Button>
                 <Button 
                   type="button" 
                   variant="secondary" 
                   className="flex-1 bg-gray-800 text-white hover:bg-gray-700 font-semibold py-6 text-lg"
+                  disabled={loading}
                 >
                   Save as Draft
                 </Button>
@@ -330,4 +487,3 @@ const PostJob = () => {
 }
 
 export default PostJob
-

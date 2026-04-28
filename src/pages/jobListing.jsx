@@ -44,8 +44,7 @@ const JobListing = () => {
     searchTerm
   })
   
-  console.log("job data", jobsData);
-
+console.log("data",jobsData);
   useEffect(() => {
     if (isLoaded && session) {
       fetchJobs()

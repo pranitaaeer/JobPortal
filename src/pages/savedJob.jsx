@@ -1,9 +1,26 @@
 import JobCard from '@/components/jobCard'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Bookmark, Briefcase } from 'lucide-react'
+import { useSession, useUser } from '@clerk/react'
+import { getSavedJobs } from '@/api/apisavedjobs'
+import Usefetch from '@/hooks/useFetch'
 
 const SavedJob = () => {
   // Sample saved jobs data
+
+  const {user}=useUser()
+  const {session,isLoaded}=useSession()
+  let userId=user?.id
+  const {fn:fetchSavedJobs,data:saveJobData,loading}=Usefetch(getSavedJobs,{userId})
+
+  useEffect(() => {
+    if(isLoaded && session && userId){
+        fetchSavedJobs()
+    }
+  }, [session,isLoaded])
+  
+    console.log("user", user?.id);
+  console.log("saved jobs data from API:", saveJobData);
   const savedJobs = [
     {
       id: 1,
@@ -110,9 +127,9 @@ const SavedJob = () => {
         </div>
 
         {/* Jobs Grid */}
-        {savedJobs.length > 0 ? (
+        { saveJobData && saveJobData.length > 0 ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {savedJobs.map((job) => (
+            {saveJobData.map((job) => (
               <JobCard key={job.id} job={job} isMyJob={true} />
             ))}
           </div>
