@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Card,
   CardContent,
@@ -19,11 +19,17 @@ import {
 } from 'lucide-react'
 import { Button } from './ui/button'
 import { Link } from 'react-router-dom'
+import { useSession, useUser } from '@clerk/react'
+import Usefetch from '@/hooks/useFetch'
+import { deleteJOb } from '@/api/apijobs'
 
 const JobCard = ({ job = {}, isMyJob = false }) => {
+  const {session,isLoaded}=useSession()
+  const {user}=useUser()
+  const [iscandidate,setisCandidate]=useState(true)
   const [saved, setIsSaved] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-
+  let recruiterId=user?.id
   // Early return if job is empty or undefined
   if (!job || Object.keys(job).length === 0) {
     return (
@@ -35,10 +41,22 @@ const JobCard = ({ job = {}, isMyJob = false }) => {
     )
   }
 
-  const handleDeleteJob = () => {
-    console.log("Job deleted:", job.title)
+  useEffect(() => {
+    if(isLoaded && session && user){
+      user?.unsafeMetadata?.role==="candidate"? setisCandidate(true):setisCandidate(false)
+    }
+  
+   
+  }, [user])
+  
+  const handleDeleteJob = (jobId) => {
     setShowDeleteConfirm(false)
-    // Add actual delete logic here
+  const {fn:deletedjob,data:deletejobData,loading}=Usefetch(deleteJOb,recruiterId,jobId)
+  deletedjob()
+
+  if(deletejobData.success){
+    alert("job deleted successfully")
+  }
   }
 
   const handleSaveJob = () => {
@@ -106,7 +124,7 @@ const JobCard = ({ job = {}, isMyJob = false }) => {
           
           {/* Action Buttons */}
           <div className="flex gap-2">
-            {isMyJob ? (
+            {!iscandidate ? (
               <Trash2Icon
                 size={18}
                 className="text-gray-500 hover:text-red-400 cursor-pointer transition-colors"

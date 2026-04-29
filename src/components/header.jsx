@@ -27,7 +27,7 @@ const Header = () => {
   
   useEffect(() => {
    setIsCandidate(user?.unsafeMetadata?.role==="candidate" ? true : false)
-  }, [])
+  }, [user ,user.unsafeMetadata.role])
   
  const  handleOverlayClick=(e)=>{
   if(e.target===e.currentTarget){

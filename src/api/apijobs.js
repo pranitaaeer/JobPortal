@@ -94,10 +94,10 @@ export async function getMyJobs(token, recruiterId) {
         .from("jobs")
         .select(`
             *,
-            company:comapny_id (
-                name,
-                logo_url
-            )
+            company:comapny_id (  
+                    name,
+                    logo_url
+                ),
         `)
         .eq("recruiter_id", recruiterId)
 
@@ -136,8 +136,7 @@ export async function getMyJobs(token, recruiterId) {
 
 export async function deleteJOb(token,recruiterId,jobId) {
     const supabase=await supabaseClient(token)
-    const {data:deleteData,error:deleteError}=
-    supabase.from("jobs")
+    const {data:deleteData,error:deleteError}= await supabase.from("jobs")
             .delete()
             .match({
                 recruiter_id:recruiterId,
@@ -155,23 +154,26 @@ export async function deleteJOb(token,recruiterId,jobId) {
 
 }
 
-export async function getSingleJob(token,jobId) {
-    const supabase=await supabaseClient(token)
-    const {data:jobData,error:jobError}=
-    supabase.from("jobs")
-            .select("*")
-            .match({
-                id:jobId
-            })
-            .single()
+export async function getSingleJob(token, jobId) {
+  const supabase = await supabaseClient(token);
 
-    if(jobError){
-        console.log("error",jobError);
-        return {error:jobError,success:false}
-    }   
-        return {error:jobData,success:true}
+  const { data: jobData, error: jobError } = await supabase
+    .from("jobs")
+    .select(`
+      *,
+      company:comapny_id (
+        name,
+        logo_url
+      )
+    `)
+    .eq("id", jobId)
+    .single();
 
+  if (jobError) {
+    console.log("error", jobError);
+    return { error: jobError, success: false };
+  }
 
-
+  return { data: jobData, success: true };
 }
 

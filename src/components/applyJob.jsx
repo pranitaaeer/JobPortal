@@ -32,11 +32,30 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Briefcase, FileText } from 'lucide-react'
-
+import { useParams } from "react-router-dom"
+import { useUser } from "@clerk/react"
+import Usefetch from "@/hooks/useFetch"
+import { CreateApplication } from "@/api/apiapplications"
+import { useState } from "react"
 export function ApplyJob() {
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = useState(false)
+  const { user } = useUser()
   const isDesktop = useMediaQuery("(min-width: 768px)")
-
+  let userId=user?.id
+  const {id}=useParams()
+  console.log("id",id);
+   const [formData, setFormData] = useState({
+      job_id: '',           
+      candidate_id: '',       
+      name: '',          
+      status: '',        
+      resume: '',          
+      skils: '',    
+      experiance: '',       
+      education: '' 
+    })
+      const {fn:createApplication,data:applicationData}=Usefetch(CreateApplication,userId,FormData,id)
+    
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
@@ -103,7 +122,7 @@ function ProfileForm({ className }) {
         <Input 
           id="experience"
           placeholder="Years of experience (e.g., 3)" 
-          type="number" 
+          type="text" 
           className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-gray-600"
         />
       </div>
