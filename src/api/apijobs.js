@@ -133,3 +133,45 @@ export async function getMyJobs(token, recruiterId) {
     console.log("Transformed jobs data:", transformedData);
     return transformedData
 }
+
+export async function deleteJOb(token,recruiterId,jobId) {
+    const supabase=await supabaseClient(token)
+    const {data:deleteData,error:deleteError}=
+    supabase.from("jobs")
+            .delete()
+            .match({
+                recruiter_id:recruiterId,
+                id:jobId
+            })
+            .select()
+
+    if(deleteError){
+        console.log("error",deleteError);
+        return {error:deleteError,success:false}
+    }   
+        return {error:deleteData,success:true}
+
+
+
+}
+
+export async function getSingleJob(token,jobId) {
+    const supabase=await supabaseClient(token)
+    const {data:jobData,error:jobError}=
+    supabase.from("jobs")
+            .select("*")
+            .match({
+                id:jobId
+            })
+            .single()
+
+    if(jobError){
+        console.log("error",jobError);
+        return {error:jobError,success:false}
+    }   
+        return {error:jobData,success:true}
+
+
+
+}
+

@@ -170,7 +170,7 @@ const JobCard = ({ job = {}, isMyJob = false }) => {
       </CardContent>
 
       <CardFooter className="flex gap-3 pt-2">
-        <Link to={`/job/1`} className="flex-1">
+        <Link to={`/job/${job.id}`} className="flex-1">
           <Button variant="secondary" className="w-full bg-gray-800 text-white hover:bg-gray-700 gap-2">
             <Eye size={16} />
             View Details

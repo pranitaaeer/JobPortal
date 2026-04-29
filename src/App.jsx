@@ -47,7 +47,7 @@ function App() {
       )
     },
     {
-      path:'/job/1',
+      path:'/job:id',
       element:(
         <ProtectdRoutes>
           <Job />
