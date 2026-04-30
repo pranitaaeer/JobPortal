@@ -29,7 +29,8 @@ import {
 
 const ApplicationCard = ({ data, isCandidate }) => {
   const [status, setStatus] = useState(data.status || "Applied")
-
+  
+  console.log("data from application:",data);
   const handleDownload = () => {
     console.log("Resume downloaded for:", data.title)
     // Add actual download logic here
@@ -38,7 +39,7 @@ const ApplicationCard = ({ data, isCandidate }) => {
   const getStatusColor = (status) => {
     const colors = {
       'Applied': 'bg-blue-600',
-      'Interviewing': 'bg-purple-600',
+      'interviewing': 'bg-purple-600',
       'Hired': 'bg-green-600',
       'Rejected': 'bg-red-600',
       'Active': 'bg-green-600',
@@ -52,7 +53,7 @@ const ApplicationCard = ({ data, isCandidate }) => {
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
           <CardTitle className="text-xl text-white font-semibold">
-            {isCandidate ? data.title : data.company || data.title}
+            {isCandidate ? data.jobs?.company?.name : "company name"}
           </CardTitle>
           {isCandidate && (
             <Download
@@ -64,7 +65,7 @@ const ApplicationCard = ({ data, isCandidate }) => {
         </div>
         {!isCandidate && (
           <p className="text-gray-400 text-sm mt-1">
-            {data.title}
+            {data.jobs?.company?.name}
           </p>
         )}
       </CardHeader>
@@ -74,7 +75,7 @@ const ApplicationCard = ({ data, isCandidate }) => {
         <div className="flex items-center gap-2 text-gray-400 text-sm">
           <BriefcaseBusiness size={15} className="text-gray-500" />
           <span>
-            {isCandidate ? "Experience: 3-5 years" : `Applicants: ${data.applicants || 0}`}
+            {isCandidate ? `Experience: ${data.experiance} years` : `Applicants: ${data.length || 0}`}
           </span>
         </div>
 
@@ -82,7 +83,7 @@ const ApplicationCard = ({ data, isCandidate }) => {
         <div className="flex items-center gap-2 text-gray-400 text-sm">
           <School size={15} className="text-gray-500" />
           <span>
-            {isCandidate ? "Bachelor's in Computer Science" : "Remote • Full-time"}
+            {isCandidate ? data.education : data.job_type}
           </span>
         </div>
 
@@ -105,7 +106,7 @@ const ApplicationCard = ({ data, isCandidate }) => {
         {/* Date */}
         <div className="flex items-center gap-2 text-gray-500 text-sm pt-2">
           <Calendar size={14} />
-          <span>Posted: {data.date}</span>
+          <span>Posted: {data.created_at}</span>
         </div>
       </CardContent>
 

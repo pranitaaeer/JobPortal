@@ -9,14 +9,14 @@ import { getMyJobs } from '@/api/apijobs'
 const MyJobs = () => {
 
  const {user}=useUser() 
+ console.log("user",user?.unsafeMetadata);
  const {session,isLoaded}=useSession()
  
  const [iscandidate,setisCandidate]=useState(null)
 
-
  useEffect(() => {
     if(isLoaded && session && user ){
-     user.unsafeMetadata.role==="candidate" ?  setisCandidate(true): setisCandidate(false)
+     user?.unsafeMetadata?.role==="candidate" ?  setisCandidate(true): setisCandidate(false)
    }
  }, [isLoaded,session,user])
  

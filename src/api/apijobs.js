@@ -97,7 +97,7 @@ export async function getMyJobs(token, recruiterId) {
             company:comapny_id (  
                     name,
                     logo_url
-                ),
+                )
         `)
         .eq("recruiter_id", recruiterId)
 

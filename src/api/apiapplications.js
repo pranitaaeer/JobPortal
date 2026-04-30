@@ -1,16 +1,29 @@
 import supabaseClient ,{supabaseUrl} from "@/utils/supabase";
 
-export async function getApplications(token,userId) {
-    const supabase=await supabaseClient(token)
-    const query=supabase.from("applications").select("*")
-    const {data,error}=await query
-
-    if(error){
-        console.log("error",error);
-        return {applicationError:error,success:false}
-    }
-        return {applicationData:data,success:true}
+export async function getMyApplications(token, { userId }) {
+    const supabase = await supabaseClient(token)
     
+    const { data, error } = await supabase
+        .from("applications")
+        .select(`
+            *,
+            jobs:job_id (
+                created_at,
+                job_type,
+                company:comapny_id (
+                    name,
+                    logo_url
+                )
+            )
+        `)
+        .eq("candidate_id", userId)
+
+    if (error) {
+        console.log("error", error);
+        return null
+    }
+    
+    return data
 }
  export async function getaplicationForJob(token,jobId) {
     const supabase=await supabaseClient(token)
@@ -25,9 +38,12 @@ export async function getApplications(token,userId) {
     return data
 }
 
-export async function CreateApplication(token, userId, formData, jobId) {
+export async function CreateApplication(token, options) {
     try {
         const supabase = await supabaseClient(token)
+        
+        // Destructure options
+        const { userId, jobId ,formData} = options
         
         // Validation
         if (!formData.resume) {
@@ -37,7 +53,7 @@ export async function CreateApplication(token, userId, formData, jobId) {
             }
         }
         
-        // Generate unique filename with original extension
+        // Generate unique filename
         const timestamp = Date.now()
         const random = Math.floor(Math.random() * 90000)
         const fileExtension = formData.resume.name?.split('.').pop() || 'pdf'
@@ -60,17 +76,17 @@ export async function CreateApplication(token, userId, formData, jobId) {
         }
 
         // Get public URL
-        const resume = `${supabaseUrl}/storage/v1/object/public/resumes/${fileName}`
+        const resumeUrl = `${supabaseUrl}/storage/v1/object/public/resumes/${fileName}`
 
         // Prepare application data
         const applicationData = {
             job_id: jobId,
             candidate_id: userId,
             name: formData.name || '',
-            status: formData.status || "pending",
-            resume: resume,
+            status: "interviewing",
+            resume: resumeUrl,
             skills: formData.skills || null,
-            experience: formData.experience || null,
+            experiance: formData.experience || null,
             education: formData.education || null,
             created_at: new Date().toISOString()
         }
@@ -95,6 +111,7 @@ export async function CreateApplication(token, userId, formData, jobId) {
         return { error: { message: error.message }, success: false }
     }
 }
+
 
 export async function Updatepplication(token,jobId,status) {
     const supabase=await supabaseClient(token)
