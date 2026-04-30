@@ -25,14 +25,14 @@ export async function getMyApplications(token, { userId }) {
     
     return data
 }
- export async function getaplicationForJob(token,jobId) {
+ export async function getaplicationForJob(token,options) {
     const supabase=await supabaseClient(token)
-
-    const query=supabase.from("applications").select("*").eq("job_id",jobId)
+    const {jobId}=options
+    const query=supabase.from("applications").select(`* , jobs:job_id ( title,job_type,company:comapny_id( name,logo_url))`).eq("job_id",jobId)
     const {data,error}=await query
 
     if(error){
-        console.log("error",error);
+        console.log("error",error.message);
         return error
     }
     return data

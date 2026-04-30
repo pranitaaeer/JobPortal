@@ -157,6 +157,16 @@ export async function deleteJOb(token,recruiterId,jobId) {
 export async function getSingleJob(token, jobId) {
   const supabase = await supabaseClient(token);
 
+//   TODO: fetch application count
+   const { count, error: countError } = await supabase
+            .from("applications")
+            .select("*", { count: 'exact', head: true })
+            .eq("job_id", jobId);
+        
+        if (countError) {
+            console.log("Error fetching application count:", countError);
+        }
+
   const { data: jobData, error: jobError } = await supabase
     .from("jobs")
     .select(`
@@ -174,6 +184,26 @@ export async function getSingleJob(token, jobId) {
     return { error: jobError, success: false };
   }
 
-  return { data: jobData, success: true };
+  return { data: jobData,length:count,success: true };
 }
 
+export  async function updateJobStatus(token,options) {
+    const supabase=await supabaseClient(token)
+    // Convert status string to boolean
+    const {jobId,recruiterId,status}=options
+    console.log("options",jobId,recruiterId,status);
+
+    
+    const isOpen = status === "open" ? true : false
+     const { data, error } = await supabase
+            .from("jobs")
+            .update({ isOpen: isOpen })
+            .eq("id", jobId)
+            .eq("recruiter_id", recruiterId)
+            .select()  // .select() is correct
+    if(error){
+        console.log("error",error);
+        return null
+    }
+    return {data:data,success:true}
+ }

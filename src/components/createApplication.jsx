@@ -2,7 +2,8 @@ import React, { useEffect } from 'react'
 import ApplicationCard from './applicationCard'
 import { useUser } from '@clerk/react'
 import Usefetch from '@/hooks/useFetch'
-import { getMyApplications } from '@/api/apiapplications'
+import { getaplicationForJob, getMyApplications } from '@/api/apiapplications'
+
 
 const CreateApplication = ({ userType }) => {
   const { user } = useUser()
@@ -10,18 +11,17 @@ const CreateApplication = ({ userType }) => {
   const { fn: myapplication, data: myApplicationsData, loading } = Usefetch(getMyApplications, { userId })
   
   useEffect(() => {
-    if (userId) {
+    if (userId && userType) {
       myapplication()
     }
   }, [userId])
   
-  console.log("applicationsData", myApplicationsData)
   
   // ✅ Loading state - pehle check karo
   if (loading) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-400">Loading applications...</p>
+        <p className="text-gray-400">Loading Applications...</p>
       </div>
     )
   }
@@ -37,7 +37,7 @@ const CreateApplication = ({ userType }) => {
   
   // ✅ Ab map safely use kar sakte ho
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {myApplicationsData.map((item) => (
         <ApplicationCard 
           key={item.id} 
@@ -45,8 +45,8 @@ const CreateApplication = ({ userType }) => {
           isCandidate={userType}
         />
       ))}
-    </div>
-  )
+  </div>
+);
 }
 
 export default CreateApplication

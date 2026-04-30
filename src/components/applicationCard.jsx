@@ -27,15 +27,14 @@ import {
   Eye
 } from 'lucide-react'
 
-const ApplicationCard = ({ data, isCandidate }) => {
+const ApplicationCard = ({ data, isCandidate,length=0 }) => {
   const [status, setStatus] = useState(data.status || "Applied")
   
-  console.log("data from application:",data);
   const handleDownload = () => {
     console.log("Resume downloaded for:", data.title)
     // Add actual download logic here
   }
-
+ console.log("length",length);
   const getStatusColor = (status) => {
     const colors = {
       'Applied': 'bg-blue-600',
@@ -53,7 +52,7 @@ const ApplicationCard = ({ data, isCandidate }) => {
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
           <CardTitle className="text-xl text-white font-semibold">
-            {isCandidate ? data.jobs?.company?.name : "company name"}
+            {isCandidate ? data.jobs?.company?.name : data.jobs?.company?.name}
           </CardTitle>
           {isCandidate && (
             <Download
@@ -65,7 +64,7 @@ const ApplicationCard = ({ data, isCandidate }) => {
         </div>
         {!isCandidate && (
           <p className="text-gray-400 text-sm mt-1">
-            {data.jobs?.company?.name}
+            {data.jobs?.title}
           </p>
         )}
       </CardHeader>
@@ -75,7 +74,7 @@ const ApplicationCard = ({ data, isCandidate }) => {
         <div className="flex items-center gap-2 text-gray-400 text-sm">
           <BriefcaseBusiness size={15} className="text-gray-500" />
           <span>
-            {isCandidate ? `Experience: ${data.experiance} years` : `Applicants: ${data.length || 0}`}
+            {isCandidate ? `Experience: ${data.experiance} years` : `Applicants: ${length}`}
           </span>
         </div>
 
@@ -83,7 +82,7 @@ const ApplicationCard = ({ data, isCandidate }) => {
         <div className="flex items-center gap-2 text-gray-400 text-sm">
           <School size={15} className="text-gray-500" />
           <span>
-            {isCandidate ? data.education : data.job_type}
+            {isCandidate ? data.education : data.jobs?.job_type}
           </span>
         </div>
 
@@ -112,39 +111,12 @@ const ApplicationCard = ({ data, isCandidate }) => {
 
       <CardFooter className="flex-col gap-3 pt-2 bg-gray-800">
         {/* Status Badge or Selector */}
-        {isCandidate ? (
           <div className="w-full flex justify-between items-center ">
             <span className="text-gray-400 text-sm">Status:</span>
             <Badge className={`${getStatusColor(status)} text-white px-3 py-1`}>
               {status}
             </Badge>
           </div>
-        ) : (
-          <div className="w-full space-y-2">
-            <Select defaultValue="status" onValueChange={setStatus}>
-              <SelectTrigger className="w-full bg-gray-800 border-gray-700 text-white">
-                <SelectValue placeholder="Application Status"  />
-              </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-700 text-white">
-                <SelectGroup>
-                  <SelectItem value="Applied" className="hover:bg-gray-700">Applied</SelectItem>
-                  <SelectItem value="Interviewing" className="hover:bg-gray-700">Interviewing</SelectItem>
-                  <SelectItem value="Hired" className="hover:bg-gray-700">Hired</SelectItem>
-                  <SelectItem value="Rejected" className="hover:bg-gray-700">Rejected</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            
-            {/* View Applications Button for Employers */}
-            <Button 
-              variant="outline" 
-              className="w-full bg-gray-800 text-white border-gray-700 hover:bg-gray-700 gap-2"
-            >
-              <Users size={14} />
-              View Applications
-            </Button>
-          </div>
-        )}
       </CardFooter>
     </Card>
   )

@@ -15,9 +15,11 @@ import ApplyJobDrawer from "../components/applyJob"
 import ApplicationCard from '@/components/applicationCard';
 import { useSession, useUser } from '@clerk/react';
 import Usefetch from '@/hooks/useFetch';
-import { getSingleJob } from '@/api/apijobs';
+import { getSingleJob, updateJobStatus } from '@/api/apijobs';
 import { useParams, useNavigate } from 'react-router-dom';
 import CreateApplication from '@/components/createApplication';
+import { getaplicationForJob } from '@/api/apiapplications';
+import { Button } from '@/components/ui/button';
 
 // Helper function to calculate days ago
 const calculateDaysAgo = (dateString) => {
@@ -37,17 +39,27 @@ const Job = () => {
   const { isLoaded, session } = useSession()
   const { user } = useUser()
   const [isCandidate, setIsCandidate] = useState(null)
+  const [selectedStatus, setSelectedStatus] = useState("")
   const { id } = useParams()
+  const recId=user?.id
   const navigate = useNavigate()
-  const { fn: singlefn, data: singleJobData, loading } = Usefetch(getSingleJob, id)
- 
-  const [hasFetched, setHasFetched] = useState(false)
+  const { fn: singlefn, data: singleJobData,loading } = Usefetch(getSingleJob, id)
+  const { fn: jobapplications, data: jobapplicationsData, loading:jobLoading } = Usefetch(getaplicationForJob, {jobId:id} )
+   const { fn: updateJOb, data: updatedData, loading: isUpdating } = Usefetch(updateJobStatus,{
+      jobId: id,
+      recruiterId: recId,
+      status: selectedStatus})
 
+  const [hasFetched, setHasFetched] = useState(false)
+  const [hasFetchedApplications, setHasFetchedApplications] = useState(false)
+
+  console.log("status",selectedStatus);
   useEffect(() => {
     if (user?.unsafeMetadata?.role === "candidate") {
       setIsCandidate(true)
     } else if (user?.unsafeMetadata?.role === "recruiter") {
       setIsCandidate(false)
+    
     }
   }, [user])
 
@@ -55,10 +67,46 @@ const Job = () => {
     if (isLoaded && session && id && !hasFetched && !loading && !singleJobData) {
       singlefn()
       setHasFetched(true)
+
     } else if (isLoaded && !id) {
       navigate('/jobs')
     }
-  }, [isLoaded, session, id, navigate, singlefn, loading, singleJobData, hasFetched])
+    if(!isCandidate && jobLoading){
+      jobapplications()
+    }
+  }, [isLoaded, session, id, navigate, singlefn, loading, singleJobData, hasFetched,isCandidate,jobLoading])
+
+  // Fetch applications - only for recruiter and only once
+  useEffect(() => {
+    if (isCandidate === false && id && !hasFetchedApplications && !jobLoading && !jobapplicationsData) {
+      jobapplications()
+      setHasFetchedApplications(true)
+    }
+  }, [isCandidate, id, jobapplications, jobLoading, jobapplicationsData, hasFetchedApplications])
+
+  useEffect(() => {
+    if (singleJobData) {
+    }
+  }, [singleJobData])
+
+  useEffect(() => {
+    if (jobapplicationsData) {
+    }
+  }, [jobapplicationsData])
+
+  const handleStatusChange = async (newStatus) => {
+    setSelectedStatus(newStatus)
+    updateJOb()
+    
+    if (updatedData) {
+      console.log("updatedData",updatedData);
+      alert("Status updated successfully!")
+      // Refresh job data to show updated status
+      singlefn()
+    } else {
+      alert("Failed to update status: " + (updatedData?.error?.message || "Unknown error"))
+    }
+  }
 
   // Show loading state
   if (loading && !singleJobData) {
@@ -90,6 +138,13 @@ const Job = () => {
     )
   }
   
+  if (!jobapplicationsData || jobapplicationsData.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-400">No applications found</p>
+      </div>
+    )
+  }
   const job = singleJobData.data
   
   return (
@@ -132,7 +187,7 @@ const Job = () => {
                 <Briefcase size={18} className="text-gray-400" />
                 <div>
                   <p className="text-gray-500 text-xs">Applicants</p>
-                  <p className="text-white text-sm font-medium">24 applicants</p>
+                  <p className="text-white text-sm font-medium" >{singleJobData.length} applicants</p>
                 </div>
               </div>
               
@@ -142,7 +197,7 @@ const Job = () => {
                     <DoorOpen size={18} className="text-green-400" />
                     <div>
                       <p className="text-gray-500 text-xs">Status</p>
-                      <p className="text-green-400 text-sm font-medium">Open</p>
+                      <p className="text-green-400 text-sm font-medium" >Open</p>
                     </div>
                   </>
                 ) : (
@@ -158,14 +213,16 @@ const Job = () => {
 
               {!isCandidate && (
                 <div className="bg-gray-800/50 rounded-lg p-3">
-                  <Select>
+                  <Select disabled={isUpdating} 
+                    onValueChange={handleStatusChange}  // ✅ Added onValueChange
+                    defaultValue={job.isOpen ? "open" : "closed"} >
                     <SelectTrigger className="w-full bg-transparent border-gray-700 text-white">
                       <SelectValue placeholder="Hiring status" />
                     </SelectTrigger>
                     <SelectContent className="bg-gray-800 border-gray-700 text-white">
                       <SelectGroup>
                         <SelectLabel className="text-gray-400">Hiring Status</SelectLabel>
-                        <SelectItem value="open" className="hover:bg-gray-700">Open</SelectItem>
+                        <SelectItem value="open" className="hover:bg-gray-700" >Open</SelectItem>
                         <SelectItem value="closed" className="hover:bg-gray-700">Closed</SelectItem>
                       </SelectGroup>
                     </SelectContent>
@@ -192,13 +249,23 @@ const Job = () => {
             </div>
 
             {/* Apply Button */}
-            <div className="mt-8 pt-6 border-t border-gray-800">
+            {isCandidate ? (
+              <div className="mt-8 pt-6 border-t border-gray-800">
               <ApplyJobDrawer />
             </div>
+            ):(
+              <div className="mt-8 pt-6 border-t border-gray-800">
+              <Button  variant='default' 
+                  onClick={() => handleStatusChange(job.isOpen ? "closed" : "open")}
+                  disabled={isUpdating}> 
+                  {isUpdating ? "Updating..." : `Mark as ${job.isOpen ? "Closed" : "Open"}`}
+              </Button>
+            </div>
+            )}
           </CardContent>
         </Card>
 
-        {/* Applications Section - Only show for employers or if user has permission */}
+        {/* Applications Section - Only show for recruiters or if user has permission */}
         {!isCandidate && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -210,22 +277,17 @@ const Job = () => {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <ApplicationCard 
-                data={{ title: "Software Engineer", company: "Amazon", status: "Interviewing" }} 
-                isCandidate={true} 
+              {
+                jobapplicationsData.map((elem,id)=>{
+                 return <ApplicationCard 
+                  key={id}
+                  data={elem} 
+                  isCandidate={isCandidate} 
+                  length={jobapplicationsData.length}
               />
-              <ApplicationCard 
-                data={{ title: "Software Engineer", company: "Amazon", status: "Applied" }} 
-                isCandidate={true} 
-              />
-              <ApplicationCard 
-                data={{ title: "Software Engineer", company: "Amazon", status: "Hired" }} 
-                isCandidate={true} 
-              />
-              <ApplicationCard 
-                data={{ title: "Software Engineer", company: "Amazon", status: "Rejected" }} 
-                isCandidate={true} 
-              />
+                })
+              }
+              
             </div>
           </div>
         )}
