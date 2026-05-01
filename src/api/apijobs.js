@@ -134,8 +134,10 @@ export async function getMyJobs(token, recruiterId) {
     return transformedData
 }
 
-export async function deleteJOb(token,recruiterId,jobId) {
+export async function deleteJOb(token,options) {
     const supabase=await supabaseClient(token)
+    const {recruiterId,jobId}=options
+    console.log("options",options);
     const {data:deleteData,error:deleteError}= await supabase.from("jobs")
             .delete()
             .match({

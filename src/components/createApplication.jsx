@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import ApplicationCard from './applicationCard'
 import { useUser } from '@clerk/react'
 import Usefetch from '@/hooks/useFetch'
-import { getaplicationForJob, getMyApplications } from '@/api/apiapplications'
+import { getMyApplications } from '@/api/apiapplications'
 
 
 const CreateApplication = ({ userType }) => {

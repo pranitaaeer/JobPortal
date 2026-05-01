@@ -22,6 +22,7 @@ import { Link } from 'react-router-dom'
 import { useSession, useUser } from '@clerk/react'
 import Usefetch from '@/hooks/useFetch'
 import { deleteJOb } from '@/api/apijobs'
+import { SaveJOb } from '@/api/apisavedjobs'
 
 const JobCard = ({ job = {}, isMyJob = false }) => {
   const {session,isLoaded}=useSession()
@@ -30,6 +31,14 @@ const JobCard = ({ job = {}, isMyJob = false }) => {
   const [saved, setIsSaved] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   let recruiterId=user?.id
+
+  const {fn:saveJObFn,data:saveJobData}=Usefetch(SaveJOb,{
+    userId:user?.id,
+    jobId:job?.id
+  })
+
+  // const {fn:deletedjob,data:deletejobData,loading}=Usefetch(deleteJOb,recruiterId,job.id)
+
   // Early return if job is empty or undefined
   if (!job || Object.keys(job).length === 0) {
     return (
@@ -49,19 +58,26 @@ const JobCard = ({ job = {}, isMyJob = false }) => {
    
   }, [user])
   
-  const handleDeleteJob = (jobId) => {
-    setShowDeleteConfirm(false)
-  const {fn:deletedjob,data:deletejobData,loading}=Usefetch(deleteJOb,recruiterId,jobId)
-  deletedjob()
+  // const handleDeleteJob = (jobId) => {
+  //   setShowDeleteConfirm(false)
+  // deletedjob()
 
-  if(deletejobData.success){
-    alert("job deleted successfully")
-  }
-  }
+  // if(deletejobData.success){
+  //   alert("job deleted successfully")
+  // }
+  // }
 
-  const handleSaveJob = () => {
-    setIsSaved(!saved)
-    console.log(saved ? "Job unsaved" : "Job saved")
+  const handleSaveJob = async() => {
+    await saveJObFn()
+    console.log("saveJOb Data from component",saveJobData.data);
+    if(saveJobData.data){
+      alert("job saved successfully")
+      setIsSaved(true)
+    }else if(saveJobData.data.message==="Job unsaved"){
+       alert("job unsave successfully")
+      setIsSaved(false)
+    }
+    
   }
 
   const getStatusColor = (status) => {

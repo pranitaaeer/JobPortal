@@ -1,4 +1,5 @@
 import supabaseClient from "@/utils/supabase";
+import { data } from "react-router-dom";
 
 export async function getSavedJobs(token, { userId }) {
     const supabase = await supabaseClient(token)
@@ -55,4 +56,53 @@ export async function getSavedJobs(token, { userId }) {
     return transformedData  // Return transformedData, not data
 }
 
-// export c
+export async function SaveJOb(token, options) {
+    const supabase = await supabaseClient(token)
+    const { userId, jobId } = options
+    
+    console.log("options", options);
+    
+    if (!userId || !jobId) {
+        console.log('All fields are required');
+        return { error: { message: "All fields are required" }, success: false }
+    }
+
+    // Check if already saved
+    const { data: existedData } = await supabase
+        .from("saved_jobs")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("job_id", jobId)
+        .single()
+    
+    // If already saved, then UNSAVE (delete)
+    if (existedData) {
+        const { error } = await supabase
+            .from("saved_jobs")
+            .delete()
+            .eq("user_id", userId)
+            .eq("job_id", jobId)
+        
+        if (error) {
+            console.log("Error in unsave:", error);
+            return { data: error, success: false }
+        }
+        
+        return { data: { message: "Job unsaved" }, success: true, action: "unsaved" }
+    }
+    
+    // If not saved, then SAVE (insert)
+    const { data: saveJobData, error } = await supabase
+        .from("saved_jobs")
+        .insert({ user_id: userId, job_id: jobId })
+        .select()
+        .single()
+    
+    if (error) {
+        console.log("Error in save:", error.message);
+        return { data: error, success: false }
+    }
+    
+    console.log("saveJobData", saveJobData);
+    return { data: saveJobData, success: true, action: "saved" }
+}
