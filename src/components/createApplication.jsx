@@ -43,6 +43,7 @@ const CreateApplication = ({ userType }) => {
           key={item.id} 
           data={item} 
           isCandidate={userType}
+          refershdata={myapplication}
         />
       ))}
   </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -24,17 +24,44 @@ import {
   Calendar,
   MapPin,
   Users,
-  Eye
+  Eye,
+  Trash2
 } from 'lucide-react'
+import Usefetch from '@/hooks/useFetch'
+import { DeleteApplication } from '@/api/apiapplications'
+import { useUser } from '@clerk/react'
 
-const ApplicationCard = ({ data, isCandidate,length=0 }) => {
+const ApplicationCard = ({ data, isCandidate, length = 0 ,refershdata}) => {
   const [status, setStatus] = useState(data.status || "Applied")
-  
-  const handleDownload = () => {
-    console.log("Resume downloaded for:", data.title)
-    // Add actual download logic here
+  const { user } = useUser()
+
+  // ✅ Sirf delete ke liye Usefetch (bin default params ke)
+  const { fn: deletefn,data:deletedData, loading: isDeleting } = Usefetch(DeleteApplication,{userId:user?.id,applicationId:data?.id})
+
+  const handleDelete = async () => {
+
+    console.log("userId",user?.id);
+    console.log("applicationId",data?.id);
+    // ✅ Validation
+    if (!user?.id) {
+      alert("Please login to delete applications")
+      return
+    }
+    
+    if (!data?.id) {
+      alert("Application ID not found")
+      return
+    }
+    
+    if (confirm("Are you sure you want to delete this application?")) {
+     
+      await deletefn()
+      // ✅ Check result directly
+        alert("Application deleted successfully!")     
+        refershdata()
+    }
   }
- console.log("length",length);
+
   const getStatusColor = (status) => {
     const colors = {
       'Applied': 'bg-blue-600',
@@ -55,10 +82,12 @@ const ApplicationCard = ({ data, isCandidate,length=0 }) => {
             {isCandidate ? data.jobs?.company?.name : data.jobs?.company?.name}
           </CardTitle>
           {isCandidate && (
-            <Download
+            <Trash2
               size={18}
-              className="bg-gray-800 text-gray-300 rounded-full h-8 w-8 p-1.5 cursor-pointer hover:bg-gray-700 hover:text-white transition-colors"
-              onClick={handleDownload}
+              className={`bg-gray-800 text-gray-300 rounded-full h-8 w-8 p-1.5 cursor-pointer hover:bg-gray-700 hover:text-white transition-colors ${
+                isDeleting ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+              onClick={!isDeleting ? handleDelete : undefined}
             />
           )}
         </div>
@@ -70,7 +99,6 @@ const ApplicationCard = ({ data, isCandidate,length=0 }) => {
       </CardHeader>
 
       <CardContent className="space-y-3">
-        {/* Experience/Company Info */}
         <div className="flex items-center gap-2 text-gray-400 text-sm">
           <BriefcaseBusiness size={15} className="text-gray-500" />
           <span>
@@ -78,7 +106,6 @@ const ApplicationCard = ({ data, isCandidate,length=0 }) => {
           </span>
         </div>
 
-        {/* Education/Location */}
         <div className="flex items-center gap-2 text-gray-400 text-sm">
           <School size={15} className="text-gray-500" />
           <span>
@@ -86,7 +113,6 @@ const ApplicationCard = ({ data, isCandidate,length=0 }) => {
           </span>
         </div>
 
-        {/* Skills */}
         <div className="flex items-start gap-2 text-gray-400 text-sm">
           <Boxes size={15} className="text-gray-500 mt-0.5" />
           <div className="flex flex-wrap gap-1">
@@ -102,7 +128,6 @@ const ApplicationCard = ({ data, isCandidate,length=0 }) => {
           </div>
         </div>
 
-        {/* Date */}
         <div className="flex items-center gap-2 text-gray-500 text-sm pt-2">
           <Calendar size={14} />
           <span>Posted: {data.created_at}</span>
@@ -110,13 +135,12 @@ const ApplicationCard = ({ data, isCandidate,length=0 }) => {
       </CardContent>
 
       <CardFooter className="flex-col gap-3 pt-2 bg-gray-800">
-        {/* Status Badge or Selector */}
-          <div className="w-full flex justify-between items-center ">
-            <span className="text-gray-400 text-sm">Status:</span>
-            <Badge className={`${getStatusColor(status)} text-white px-3 py-1`}>
-              {status}
-            </Badge>
-          </div>
+        <div className="w-full flex justify-between items-center">
+          <span className="text-gray-400 text-sm">Status:</span>
+          <Badge className={`${getStatusColor(status)} text-white px-3 py-1`}>
+            {status}
+          </Badge>
+        </div>
       </CardFooter>
     </Card>
   )

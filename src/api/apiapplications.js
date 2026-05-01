@@ -125,23 +125,37 @@ export async function Updatepplication(token,jobId,status) {
     }
     return data
 }
-export async function DeleteApplication(token,userId,applicationId,jobId) {
-    const supabase=await supabaseClient(token)
+export async function DeleteApplication(token, options) {
+    try {
+        const { userId, applicationId } = options
+        console.log("options,",options);
+        const supabase = await supabaseClient(token)
 
-    const {data:deleteddata,error:applicationError}=supabase.from("applications")
-                       .delete()
-                       .match({
-                            candidate_id: userId,
-                            job_id: jobId,
-                            id: applicationId
-                            })
-                       .select()
+        const { data: deletedData, error: applicationError } = await supabase
+            .from("applications")
+            .delete()
+            .eq("candidate_id", userId)
+            .eq("id", applicationId)
+            .select()
 
+        // ✅ Check for error first
+        if (applicationError) {
+            console.error("Delete error:", applicationError)
+            return { error: applicationError, success: false }
+        }
 
-    if(deleteddata){
-        console.log("error",applicationError);
-        return {error:applicationError,success:false}
+        // ✅ Check if any row was deleted
+        if (!deletedData || deletedData.length === 0) {
+            return { 
+                error: { message: "Application not found or you don't have permission" }, 
+                success: false 
+            }
+        }
+        console.log("Application deleted successfully:", deletedData)
+        return { data: deletedData[0], success: true }
+
+    } catch (error) {
+        console.error("Unexpected error:", error)
+        return { error: { message: error.message }, success: false }
     }
-        return {error:deleteddata,success:true}
-
 }
