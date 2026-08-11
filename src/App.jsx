@@ -4,7 +4,6 @@ import AppLayout from './layouts/applayout'
 import PostJob from './pages/postJob';
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import MyJobs from './pages/myJobs';
-import CreatedJob from './components/CreatedJob';
 import ApplyJob from './components/applyJob';
 import Job from './pages/job';
 import JobListing from './pages/jobListing';
