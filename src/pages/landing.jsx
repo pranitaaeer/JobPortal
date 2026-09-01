@@ -232,7 +232,7 @@ const Landing = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="relative rounded-2xl overflow-hidden group">
             <img 
-              src="../../public/banner.jpeg" 
+              src="https://6x4n1t1v2k.ufs.sh/f/8E47N5eIHXbFnadbHu54T0pKgBfLAV1Fdv6xHleEUYtbP3qr" 
               className="w-full h-auto object-cover transform group-hover:scale-105 transition-transform duration-500"
               alt="Career banner"
             />
