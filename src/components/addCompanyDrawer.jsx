@@ -32,7 +32,6 @@ const AddCompanyDrawer = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    console.log("Company Data:", { companyName, logo: companyLogo })
     // Add your API call here
     alert(`Company "${companyName}" added successfully!`)
     setOpen(false)

@@ -40,8 +40,6 @@ const ApplicationCard = ({ data, isCandidate, length = 0 ,refershdata}) => {
 
   const handleDelete = async () => {
 
-    console.log("userId",user?.id);
-    console.log("applicationId",data?.id);
     // ✅ Validation
     if (!user?.id) {
       alert("Please login to delete applications")

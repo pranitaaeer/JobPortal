@@ -66,7 +66,6 @@ export async function CreateApplication(token, options) {
             })
 
         if (storageError) {
-            console.error("Storage error:", storageError)
             return { 
                 error: { message: "Error uploading resume", details: storageError }, 
                 success: false 
@@ -97,15 +96,12 @@ export async function CreateApplication(token, options) {
             .single()
 
         if (applicationError) {
-            console.error("Application error:", applicationError)
             return { error: applicationError, success: false }
         }
 
-        console.log("Application created successfully:", result)
         return { data: result, success: true }
         
     } catch (error) {
-        console.error("Unexpected error:", error)
         return { error: { message: error.message }, success: false }
     }
 }
@@ -118,7 +114,6 @@ export async function Updatepplication(token,jobId,status) {
     const {data,error}=await query
 
     if(error){
-        console.log("error",error);
         return error
     }
     return data
@@ -126,7 +121,6 @@ export async function Updatepplication(token,jobId,status) {
 export async function DeleteApplication(token, options) {
     try {
         const { userId, applicationId } = options
-        console.log("options,",options);
         const supabase = await supabaseClient(token)
 
         const { data: deletedData, error: applicationError } = await supabase
@@ -138,7 +132,6 @@ export async function DeleteApplication(token, options) {
 
         // ✅ Check for error first
         if (applicationError) {
-            console.error("Delete error:", applicationError)
             return { error: applicationError, success: false }
         }
 
@@ -149,11 +142,9 @@ export async function DeleteApplication(token, options) {
                 success: false 
             }
         }
-        console.log("Application deleted successfully:", deletedData)
         return { data: deletedData[0], success: true }
 
     } catch (error) {
-        console.error("Unexpected error:", error)
         return { error: { message: error.message }, success: false }
     }
 }

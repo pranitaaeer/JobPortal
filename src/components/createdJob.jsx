@@ -22,7 +22,6 @@ if (!isLoaded || loading) {
       </div>
     )
   }
- console.log("job data",myJobsData);
   
 
   if (iscandidate) {

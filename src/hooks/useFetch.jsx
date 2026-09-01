@@ -22,7 +22,6 @@ const Usefetch = (cb,options={}) => {
             setData(response)
             setError(null)
         } catch (error) {
-            console.log("err:",error);
             setError(error)
         }finally{
             setLoading(false)

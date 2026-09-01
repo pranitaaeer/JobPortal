@@ -26,11 +26,9 @@ export async function getSavedJobs(token, { userId }) {
         .eq("user_id", userId)
 
     if(error){
-        console.log("Error fetching saved jobs:", error);
         return null
     }
     
-    console.log("Raw data from Supabase:", data);
     
     // Transform to exactly the format you need
     const transformedData = data?.map(item => ({
@@ -52,7 +50,6 @@ export async function getSavedJobs(token, { userId }) {
         saved_at: item.saved_at
     })) || []
     
-    console.log("Transformed data:", transformedData);
     return transformedData  // Return transformedData, not data
 }
 
@@ -60,10 +57,8 @@ export async function SaveJOb(token, options) {
     const supabase = await supabaseClient(token)
     const { userId, jobId } = options
     
-    console.log("options", options);
     
     if (!userId || !jobId) {
-        console.log('All fields are required');
         return { error: { message: "All fields are required" }, success: false }
     }
 
@@ -84,7 +79,6 @@ export async function SaveJOb(token, options) {
             .eq("job_id", jobId)
         
         if (error) {
-            console.log("Error in unsave:", error);
             return { data: error, success: false }
         }
         
@@ -99,10 +93,8 @@ export async function SaveJOb(token, options) {
         .single()
     
     if (error) {
-        console.log("Error in save:", error.message);
         return { data: error, success: false }
     }
     
-    console.log("saveJobData", saveJobData);
     return { data: saveJobData, success: true, action: "saved" }
 }

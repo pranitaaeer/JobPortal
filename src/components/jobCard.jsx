@@ -69,7 +69,6 @@ const JobCard = ({ job = {}, isMyJob = false }) => {
 
   const handleSaveJob = async() => {
     await saveJObFn()
-    console.log("saveJOb Data from component",saveJobData.data);
     if(saveJobData.data){
       alert("job saved successfully")
       setIsSaved(true)

@@ -9,7 +9,6 @@ import { getMyJobs } from '@/api/apijobs'
 const MyJobs = () => {
 
  const {user}=useUser() 
- console.log("user",user?.unsafeMetadata);
  const {session,isLoaded}=useSession()
  
  const [iscandidate,setisCandidate]=useState(null)

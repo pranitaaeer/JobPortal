@@ -21,7 +21,6 @@ export async function getJobs(token,{location,company_id,searchTerm}) {
     const{data,error}=await query
 
     if(error){
-        console.error("error",error);
         return null
     }
    return data
@@ -53,14 +52,12 @@ export async function postJobs(token,formData,userId) {
         .single()
 
         if(companyError) {
-            console.log(companyError);
             return {error:companyError,success:false}
         }
        companyId=newCompany.id
 
     }else  companyId=existingCompany.id
    
-    console.log("companyId:",companyId);
     const {data:jobData,error:joberror}=await supabase
     .from("jobs")
     .insert({
@@ -79,7 +76,6 @@ export async function postJobs(token,formData,userId) {
     .single()
 
     if(joberror){
-        console.log("job error:",joberror);
             return {error:joberror,success:false}
 
     }
@@ -87,7 +83,6 @@ export async function postJobs(token,formData,userId) {
 }
 
 export async function getMyJobs(token, recruiterId) {
-    console.log("recruiterId", recruiterId);
     const supabase = await supabaseClient(token)
     
     const query = supabase
@@ -104,7 +99,6 @@ export async function getMyJobs(token, recruiterId) {
     const { data, error } = await query
 
     if (error) {
-        console.log("error", error);
         return null
     }
     
@@ -130,14 +124,12 @@ export async function getMyJobs(token, recruiterId) {
         company_details: job.company
     }))
     
-    console.log("Transformed jobs data:", transformedData);
     return transformedData
 }
 
 export async function deleteJOb(token,options) {
     const supabase=await supabaseClient(token)
     const {recruiterId,jobId}=options
-    console.log("options",options);
     const {data:deleteData,error:deleteError}= await supabase.from("jobs")
             .delete()
             .match({
@@ -147,7 +139,6 @@ export async function deleteJOb(token,options) {
             .select()
 
     if(deleteError){
-        console.log("error",deleteError);
         return {error:deleteError,success:false}
     }   
         return {error:deleteData,success:true}
@@ -166,7 +157,6 @@ export async function getSingleJob(token, jobId) {
             .eq("job_id", jobId);
         
         if (countError) {
-            console.log("Error fetching application count:", countError);
         }
 
   const { data: jobData, error: jobError } = await supabase
@@ -182,7 +172,6 @@ export async function getSingleJob(token, jobId) {
     .single();
 
   if (jobError) {
-    console.log("error", jobError);
     return { error: jobError, success: false };
   }
 
@@ -193,7 +182,6 @@ export  async function updateJobStatus(token,options) {
     const supabase=await supabaseClient(token)
     // Convert status string to boolean
     const {jobId,recruiterId,status}=options
-    console.log("options",jobId,recruiterId,status);
 
     
     const isOpen = status === "open" ? true : false
@@ -204,7 +192,6 @@ export  async function updateJobStatus(token,options) {
             .eq("recruiter_id", recruiterId)
             .select()  // .select() is correct
     if(error){
-        console.log("error",error);
         return null
     }
     return {data:data,success:true}

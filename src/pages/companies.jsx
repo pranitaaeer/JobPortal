@@ -18,7 +18,6 @@ const Companies = () => {
     if(isLoaded && session) fetchComapnies()
   }, [isLoaded, session])
   
-  console.log("company data", companyData);
 
   if(!isLoaded || loading) {
     return(

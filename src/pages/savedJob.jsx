@@ -19,8 +19,6 @@ const SavedJob = () => {
     }
   }, [session,isLoaded])
   
-    console.log("user", user?.id);
-  console.log("saved jobs data from API:", saveJobData);
   const savedJobs = [
     {
       id: 1,

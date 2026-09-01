@@ -53,7 +53,6 @@ const Job = () => {
   const [hasFetched, setHasFetched] = useState(false)
   const [hasFetchedApplications, setHasFetchedApplications] = useState(false)
 
-  console.log("status",selectedStatus);
   useEffect(() => {
     if (user?.unsafeMetadata?.role === "candidate") {
       setIsCandidate(true)
@@ -99,7 +98,6 @@ const Job = () => {
     updateJOb()
     
     if (updatedData) {
-      console.log("updatedData",updatedData);
       alert("Status updated successfully!")
       // Refresh job data to show updated status
       singlefn()

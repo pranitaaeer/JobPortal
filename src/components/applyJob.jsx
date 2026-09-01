@@ -72,7 +72,6 @@ export function ApplyJob() {
         setFormData(prev => ({ ...prev, resume: files[0] }))
         setSelectedFile(files[0].name)
         setResumeError(false)
-        console.log("File selected:", files[0].name)
       } else {
         setFormData(prev => ({ ...prev, resume: null }))
         setSelectedFile(null)

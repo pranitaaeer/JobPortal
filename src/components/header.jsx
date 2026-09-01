@@ -17,7 +17,6 @@ const Header = () => {
 
 
   const {user}=useUser()
-  console.log("user",user);
   useEffect(() => {
   
     if(search.get("sign-in")) setShowSigin(true)
