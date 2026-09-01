@@ -19,7 +19,6 @@ export async function getMyApplications(token, { userId }) {
         .eq("candidate_id", userId)
 
     if (error) {
-        console.log("error", error);
         return null
     }
     
@@ -32,7 +31,6 @@ export async function getMyApplications(token, { userId }) {
     const {data,error}=await query
 
     if(error){
-        console.log("error",error.message);
         return error
     }
     return data
